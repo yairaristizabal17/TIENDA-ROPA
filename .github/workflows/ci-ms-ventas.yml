@@ -59,5 +59,5 @@ jobs:
           context: ./ms-ventas
           push: true
           tags: |
-            felipegonzalezc540/tienda-ropa-ms-ventas:latest
-            felipegonzalezc540/tienda-ropa-ms-ventas:${{ github.sha }}
+            felipegonzalezc07/tienda-ropa-ms-ventas:latest
+            felipegonzalezc07/tienda-ropa-ms-ventas:${{ github.sha }}

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const SECRET_KEY = "tienda-ropa-secreta";
+const SECRET_KEY = process.env.JWT_SECRET;
 
 function verificarToken(req, res, next) {
 
@@ -12,7 +12,15 @@ function verificarToken(req, res, next) {
         });
     }
 
-    const token = authorization.split(" ")[1];
+    const partes = authorization.split(" ");
+
+if (partes.length !== 2 || partes[0] !== "Bearer" || !partes[1]) {
+    return res.status(401).json({
+        mensaje: "Formato de token inválido. Use Bearer TOKEN"
+    });
+}
+
+const token = partes[1];
 
     try {
 

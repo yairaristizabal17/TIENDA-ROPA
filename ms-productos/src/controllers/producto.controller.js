@@ -1,31 +1,33 @@
-const service =
-    require("../services/producto.service");
+const service = require("../services/producto.service");
 
 class ProductoController {
 
     crear = (req, res) => {
+        const { nombre, precio, stock } = req.body;
 
-        const producto =
-            service.crear(req.body);
+        if (!nombre || precio < 0 || stock < 0 ||
+            precio === undefined || stock === undefined) {
+            return res.status(400).json({
+                mensaje: "Datos del producto inválidos"
+            });
+        }
 
-        res.status(201).json(producto);
+        const producto = service.crear(req.body);
+
+        res.status(201).json({
+            mensaje: "Producto creado correctamente",
+            producto
+        });
     };
 
     obtenerTodos = (req, res) => {
-
-        const productos =
-            service.obtenerTodos();
-
-        res.json(productos);
+        res.json(service.obtenerTodos());
     };
 
     obtenerPorId = (req, res) => {
-
-        const producto =
-            service.buscarPorId(req.params.id);
+        const producto = service.buscarPorId(req.params.id);
 
         if (!producto) {
-
             return res.status(404).json({
                 mensaje: "Producto no encontrado"
             });
@@ -35,12 +37,9 @@ class ProductoController {
     };
 
     eliminar = (req, res) => {
-
-        const eliminado =
-            service.eliminar(req.params.id);
+        const eliminado = service.eliminar(req.params.id);
 
         if (!eliminado) {
-
             return res.status(404).json({
                 mensaje: "Producto no encontrado"
             });

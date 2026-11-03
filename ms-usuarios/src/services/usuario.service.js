@@ -1,17 +1,17 @@
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const repository = require("../repositories/usuario.repository");
-const Usuario = require("../models/usuario.model");
 
-const SECRET_KEY = "tienda-ropa-secreta";
+const SECRET_KEY = process.env.JWT_SECRET;
 
 class UsuarioService {
 
-    registrar(nombre, email, password) {
+    async registrar(nombre, email, password) {
 
         const usuarioExistente =
-            repository.buscarPorEmail(email);
+            await repository.buscarPorEmail(email);
 
         if (usuarioExistente) {
             throw new Error("El usuario ya existe");
@@ -20,33 +20,26 @@ class UsuarioService {
         const passwordEncriptada =
             bcrypt.hashSync(password, 10);
 
-        const id =
-            repository.obtenerTodos().length + 1;
-
-        const usuario = new Usuario(
-            id,
+        const usuario = {
             nombre,
-            email,
-            passwordEncriptada
-        );
+            email: email.toLowerCase(),
+            password: passwordEncriptada
+        };
 
-        return repository.crear(usuario);
+        return await repository.crear(usuario);
     }
 
-    login(email, password) {
+    async login(email, password) {
 
         const usuario =
-            repository.buscarPorEmail(email);
+            await repository.buscarPorEmail(email);
 
         if (!usuario) {
             throw new Error("Usuario no encontrado");
         }
 
         const passwordCorrecta =
-            bcrypt.compareSync(
-                password,
-                usuario.password
-            );
+            bcrypt.compareSync(password, usuario.password);
 
         if (!passwordCorrecta) {
             throw new Error("Contraseña incorrecta");
@@ -54,7 +47,7 @@ class UsuarioService {
 
         const token = jwt.sign(
             {
-                id: usuario.id,
+                id: usuario._id,
                 email: usuario.email
             },
             SECRET_KEY,
@@ -65,7 +58,7 @@ class UsuarioService {
 
         return {
             mensaje: "Login exitoso",
-            token: token
+            token
         };
     }
 }

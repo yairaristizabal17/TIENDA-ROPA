@@ -1,26 +1,24 @@
-const usuarios = [];
+
+const Usuario = require("../models/usuario.model");
 
 class UsuarioRepository {
 
-    crear(usuario) {
-        usuarios.push(usuario);
-        return usuario;
+    async crear(usuario) {
+        return await Usuario.create(usuario);
     }
 
-    buscarPorEmail(email) {
-        return usuarios.find(
-            usuario => usuario.email === email
-        );
+    async buscarPorEmail(email) {
+        return await Usuario.findOne({
+            email: email.toLowerCase()
+        });
     }
 
-    buscarPorId(id) {
-        return usuarios.find(
-            usuario => usuario.id === id
-        );
+    async buscarPorId(id) {
+        return await Usuario.findById(id);
     }
 
-    obtenerTodos() {
-        return usuarios;
+    async obtenerTodos() {
+        return await Usuario.find();
     }
 }
 

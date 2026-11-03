@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -5,6 +7,11 @@ const cors = require("cors");
 const verificarToken = require("./middleware/auth.middleware");
 
 const app = express();
+
+// Direcciones de los microservicios
+const USUARIOS_URL = process.env.USUARIOS_URL;
+const PRODUCTOS_URL = process.env.PRODUCTOS_URL;
+const VENTAS_URL = process.env.VENTAS_URL;
 
 // Middlewares
 app.use(cors());
@@ -20,7 +27,7 @@ app.post("/usuarios/registro", async (req, res) => {
     try {
 
         const respuesta = await axios.post(
-            "http://localhost:3001/usuarios/registro",
+            `${USUARIOS_URL}/usuarios/registro`,
             req.body
         );
 
@@ -50,7 +57,7 @@ app.post("/usuarios/login", async (req, res) => {
     try {
 
         const respuesta = await axios.post(
-            "http://localhost:3001/usuarios/login",
+            `${USUARIOS_URL}/usuarios/login`,
             req.body
         );
 
@@ -78,8 +85,8 @@ app.get("/productos", verificarToken, async (req, res) => {
     try {
 
         const respuesta = await axios.get(
-            "http://localhost:3002/productos"
-        );
+    `${PRODUCTOS_URL}/productos`
+);
 
         res.json(respuesta.data);
 
@@ -91,6 +98,130 @@ app.get("/productos", verificarToken, async (req, res) => {
     }
 });
 
+// ================================
+// VENTAS - RUTAS
+// ================================
+
+// Registrar una venta
+app.post("/ventas", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.post(
+            "${VENTAS_URL}/ventas",
+            req.body
+        );
+
+        res.status(respuesta.status).json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// Consultar todas las ventas
+app.get("/ventas", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.get(
+            "${VENTAS_URL}/ventas"
+        );
+
+        res.json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// Consultar ventas de un usuario
+app.get("/ventas/usuario/:usuarioId", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.get(
+            `${VENTAS_URL}/ventas/usuario/${req.params.usuarioId}`
+        );
+
+        res.json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// Consultar una venta por ID
+app.get("/ventas/:id", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.get(
+            `${VENTAS_URL}/ventas/${req.params.id}`
+        );
+
+        res.json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// Actualizar el estado de una venta
+app.patch("/ventas/:id/estado", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.patch(
+            `${VENTAS_URL}/ventas/${req.params.id}/estado`,
+            req.body
+        );
+
+        res.json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// Eliminar una venta
+app.delete("/ventas/:id", verificarToken, async (req, res) => {
+    try {
+        const respuesta = await axios.delete(
+            `${VENTAS_URL}/ventas/${req.params.id}`
+        );
+
+        res.json(respuesta.data);
+
+    } catch (error) {
+        res.status(error.response?.status || 500).json(
+            error.response?.data || {
+                mensaje: "Error en MS Ventas"
+            }
+        );
+    }
+});
+
+// ================================
+// HEALTH CHECK
+// ================================
+
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        estado: "OK",
+        servicio: "API GATEWAY"
+    });
+});
 
 // ================================
 // SERVIDOR

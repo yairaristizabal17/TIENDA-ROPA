@@ -1,8 +1,9 @@
+
 const service = require("../services/usuario.service");
 
 class UsuarioController {
 
-    registrar = (req, res) => {
+    registrar = async (req, res) => {
 
         try {
 
@@ -12,7 +13,13 @@ class UsuarioController {
                 password
             } = req.body;
 
-            const usuario = service.registrar(
+            if (!nombre || !email || !password) {
+                return res.status(400).json({
+                    error: "Todos los campos son obligatorios"
+                });
+            }
+
+            const usuario = await service.registrar(
                 nombre,
                 email,
                 password
@@ -21,7 +28,7 @@ class UsuarioController {
             res.status(201).json({
                 mensaje: "Usuario registrado",
                 usuario: {
-                    id: usuario.id,
+                    id: usuario._id,
                     nombre: usuario.nombre,
                     email: usuario.email
                 }
@@ -36,7 +43,7 @@ class UsuarioController {
         }
     };
 
-    login = (req, res) => {
+    login = async (req, res) => {
 
         try {
 
@@ -45,7 +52,13 @@ class UsuarioController {
                 password
             } = req.body;
 
-            const resultado = service.login(
+            if (!email || !password) {
+                return res.status(400).json({
+                    error: "Correo y contraseña son obligatorios"
+                });
+            }
+
+            const resultado = await service.login(
                 email,
                 password
             );
